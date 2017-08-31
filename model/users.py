@@ -39,7 +39,14 @@ class Users:
           True :: add user
           False :: do not add
         """
-        for i in range(0, len(users) - 1):
-            if users[i].mail == user.mail:
+        for i in range(0, len(self.users)):
+            if self.users[i].mail == user.mail:
                 return False
-        users.append(user)
+        self.users.append(user)
+        return True
+
+    def get_user(self, index):
+        if len(self.users) <= index:
+            return "",""
+        return self.users[index].name, self.users[index].mail
+    
