@@ -1,7 +1,6 @@
 """
-usage: % python -m unittest test.test_users
+usage: python -m unittest test.test_users
 """
-
 import unittest
 import users
 
