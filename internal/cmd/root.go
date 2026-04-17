@@ -24,4 +24,7 @@ func init() {
 	rootCmd.AddCommand(commentCmd)
 	rootCmd.AddCommand(closeCmd)
 	rootCmd.AddCommand(serveCmd)
+	rootCmd.AddCommand(hookCmd)
+	rootCmd.AddCommand(logCmd)
+	rootCmd.AddCommand(mergeDriverCmd)
 }
