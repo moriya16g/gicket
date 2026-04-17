@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -36,7 +37,11 @@ var newCmd = &cobra.Command{
 		}
 
 		if newTitle == "" {
-			return fmt.Errorf(i18n.T("new.title.required"))
+			return errors.New(i18n.T("new.title.required"))
+		}
+
+		if err := model.ValidatePriority(newPriority); err != nil {
+			return err
 		}
 
 		now := time.Now()

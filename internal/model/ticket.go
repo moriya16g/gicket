@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Status string
 
@@ -10,6 +13,19 @@ const (
 	StatusClosed     Status = "closed"
 )
 
+// ValidStatuses は有効なステータスの一覧
+var ValidStatuses = []Status{StatusOpen, StatusInProgress, StatusClosed}
+
+// IsValidStatus はステータスが有効かどうかを返す
+func IsValidStatus(s string) bool {
+	for _, v := range ValidStatuses {
+		if string(v) == s {
+			return true
+		}
+	}
+	return false
+}
+
 type Priority string
 
 const (
@@ -17,6 +33,35 @@ const (
 	PriorityMedium Priority = "medium"
 	PriorityHigh   Priority = "high"
 )
+
+// ValidPriorities は有効な優先度の一覧
+var ValidPriorities = []Priority{PriorityLow, PriorityMedium, PriorityHigh}
+
+// IsValidPriority は優先度が有効かどうかを返す
+func IsValidPriority(p string) bool {
+	for _, v := range ValidPriorities {
+		if string(v) == p {
+			return true
+		}
+	}
+	return false
+}
+
+// ValidateStatus はステータスを検証し、無効な場合エラーを返す
+func ValidateStatus(s string) error {
+	if !IsValidStatus(s) {
+		return fmt.Errorf("invalid status: %q (must be one of: open, in-progress, closed)", s)
+	}
+	return nil
+}
+
+// ValidatePriority は優先度を検証し、無効な場合エラーを返す
+func ValidatePriority(p string) error {
+	if !IsValidPriority(p) {
+		return fmt.Errorf("invalid priority: %q (must be one of: low, medium, high)", p)
+	}
+	return nil
+}
 
 type Comment struct {
 	Author string    `yaml:"author" json:"author"`

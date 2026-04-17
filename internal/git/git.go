@@ -1,6 +1,7 @@
 package git
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -20,7 +21,7 @@ func FindGitRoot(startDir string) (string, error) {
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
-			return "", fmt.Errorf(i18n.T("git.repo.not.found"))
+			return "", errors.New(i18n.T("git.repo.not.found"))
 		}
 		dir = parent
 	}
@@ -52,7 +53,7 @@ func IsInGitRepo(dir string) bool {
 func GitExecutable() (string, error) {
 	path, err := exec.LookPath("git")
 	if err != nil {
-		return "", fmt.Errorf(i18n.T("git.not.installed"))
+		return "", errors.New(i18n.T("git.not.installed"))
 	}
 	return path, nil
 }

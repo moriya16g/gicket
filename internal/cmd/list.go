@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -12,7 +13,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var listAll bool
+var (
+	listAll  bool
+	listJSON bool
+)
 
 var listCmd = &cobra.Command{
 	Use:   "list",
@@ -43,7 +47,20 @@ var listCmd = &cobra.Command{
 		}
 
 		if len(tickets) == 0 {
-			fmt.Println(i18n.T("list.no.tickets"))
+			if listJSON {
+				fmt.Println("[]")
+			} else {
+				fmt.Println(i18n.T("list.no.tickets"))
+			}
+			return nil
+		}
+
+		if listJSON {
+			data, err := json.MarshalIndent(tickets, "", "  ")
+			if err != nil {
+				return err
+			}
+			fmt.Println(string(data))
 			return nil
 		}
 
@@ -65,4 +82,5 @@ var listCmd = &cobra.Command{
 
 func init() {
 	listCmd.Flags().BoolVarP(&listAll, "all", "a", false, i18n.T("list.flag.all"))
+	listCmd.Flags().BoolVar(&listJSON, "json", false, i18n.T("flag.json"))
 }

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/gicket/gicket/internal/i18n"
 	"github.com/gicket/gicket/internal/model"
@@ -12,11 +11,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var commentBody string
-
-var commentCmd = &cobra.Command{
-	Use:   "comment <id>",
-	Short: i18n.T("comment.short"),
+var reopenCmd = &cobra.Command{
+	Use:   "reopen <id>",
+	Short: i18n.T("reopen.short"),
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cwd, err := os.Getwd()
@@ -32,30 +29,20 @@ var commentCmd = &cobra.Command{
 			return err
 		}
 
-		if commentBody == "" {
-			return errors.New(i18n.T("comment.body.required"))
-		}
-
 		ticket, err := s.Load(args[0])
 		if err != nil {
 			return err
 		}
 
-		comment := model.Comment{
-			Author: getGitUser(),
-			Date:   time.Now(),
-			Body:   commentBody,
+		if ticket.Status == model.StatusOpen {
+			return errors.New(i18n.Tf("reopen.already.open", ticket.ID))
 		}
-		ticket.Comments = append(ticket.Comments, comment)
 
+		ticket.Status = model.StatusOpen
 		if err := s.Save(ticket); err != nil {
 			return err
 		}
-		fmt.Println(i18n.Tf("comment.success", ticket.ID))
+		fmt.Println(i18n.Tf("reopen.success", ticket.ID, ticket.Title))
 		return nil
 	},
-}
-
-func init() {
-	commentCmd.Flags().StringVarP(&commentBody, "message", "m", "", i18n.T("comment.flag.message"))
 }

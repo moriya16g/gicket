@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -9,6 +10,8 @@ import (
 	"github.com/gicket/gicket/internal/store"
 	"github.com/spf13/cobra"
 )
+
+var showJSON bool
 
 var showCmd = &cobra.Command{
 	Use:   "show <id>",
@@ -31,6 +34,15 @@ var showCmd = &cobra.Command{
 		ticket, err := s.Load(args[0])
 		if err != nil {
 			return err
+		}
+
+		if showJSON {
+			data, err := json.MarshalIndent(ticket, "", "  ")
+			if err != nil {
+				return err
+			}
+			fmt.Println(string(data))
+			return nil
 		}
 
 		fmt.Printf("ID:        %s\n", ticket.ID)
@@ -59,4 +71,8 @@ var showCmd = &cobra.Command{
 
 		return nil
 	},
+}
+
+func init() {
+	showCmd.Flags().BoolVar(&showJSON, "json", false, i18n.T("flag.json"))
 }

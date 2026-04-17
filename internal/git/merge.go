@@ -1,6 +1,7 @@
 package git
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -39,7 +40,7 @@ func MergeTicketFiles(ancestorPath, oursPath, theirsPath string) error {
 	}
 
 	if conflict {
-		return fmt.Errorf(i18n.Tf("merge.conflict", merged.ID))
+		return errors.New(i18n.Tf("merge.conflict", merged.ID))
 	}
 	return nil
 }

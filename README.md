@@ -25,18 +25,18 @@ gicket manages tickets as human-readable YAML text files inside a Git repository
 
 **Download binary** (no Go required):
 
-Download the latest release for your platform from [GitHub Releases](https://github.com/gicket/gicket/releases), then place it in your PATH.
+Download the latest release for your platform from [GitHub Releases](https://github.com/moriya16g/gicket/releases), then place it in your PATH.
 
 **Or install with Go**:
 
 ```bash
-go install github.com/gicket/gicket@latest
+go install github.com/moriya16g/gicket@latest
 ```
 
 **Or build from source**:
 
 ```bash
-git clone https://github.com/gicket/gicket.git
+git clone https://github.com/moriya16g/gicket.git
 cd gicket
 go build -o gicket .
 ```
@@ -69,6 +69,21 @@ gicket comment <id> -m "Working on this now"
 
 # Close a ticket
 gicket close <id>
+
+# Reopen a closed ticket
+gicket reopen <id>
+
+# Search tickets by keyword
+gicket search "login"
+
+# Show ticket statistics
+gicket stats
+
+# JSON output (available on list, show, search, stats)
+gicket list --json
+gicket show <id> --json
+gicket search "bug" --json
+gicket stats --json
 
 # Start Web UI (default: http://localhost:8080)
 gicket serve
@@ -136,6 +151,9 @@ your-project/
 | `gicket edit <id>` | Edit ticket fields |
 | `gicket comment <id>` | Add a comment to a ticket |
 | `gicket close <id>` | Close a ticket |
+| `gicket reopen <id>` | Reopen a closed ticket |
+| `gicket search <keyword>` | Search tickets by keyword |
+| `gicket stats` | Show ticket statistics |
 | `gicket serve` | Start Web UI server (`-p` for port, default 8080) |
 | `gicket hook install` | Install Git hooks and custom merge driver |
 | `gicket hook uninstall` | Uninstall Git hooks and merge driver |
@@ -243,6 +261,7 @@ Detection priority: `GICKET_LANG` > `LANG` > English.
 - [x] **Phase 2**: REST API + Web UI (`gicket serve`)
 - [x] **Phase 3**: Git integration (hooks, merge conflict resolution)
 - [x] **Phase 4**: VS Code extension
+- [x] **v1.0.0**: Input validation, search, reopen, stats, JSON output, config file
 
 ## Similar Projects
 

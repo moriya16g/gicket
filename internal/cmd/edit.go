@@ -46,9 +46,15 @@ var editCmd = &cobra.Command{
 			ticket.Title = editTitle
 		}
 		if cmd.Flags().Changed("priority") {
+			if err := model.ValidatePriority(editPriority); err != nil {
+				return err
+			}
 			ticket.Priority = model.Priority(editPriority)
 		}
 		if cmd.Flags().Changed("status") {
+			if err := model.ValidateStatus(editStatus); err != nil {
+				return err
+			}
 			ticket.Status = model.Status(editStatus)
 		}
 		if cmd.Flags().Changed("assignee") {

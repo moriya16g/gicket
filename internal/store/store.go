@@ -2,6 +2,7 @@ package store
 
 import (
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -39,7 +40,7 @@ func FindRoot(startDir string) (string, error) {
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
-			return "", fmt.Errorf(i18n.T("store.gicket.not.found"))
+			return "", errors.New(i18n.T("store.gicket.not.found"))
 		}
 		dir = parent
 	}
@@ -175,11 +176,11 @@ func (s *Store) resolveID(id string) (string, error) {
 
 	switch len(matches) {
 	case 0:
-		return "", fmt.Errorf(i18n.Tf("store.ticket.not.found", id))
+		return "", errors.New(i18n.Tf("store.ticket.not.found", id))
 	case 1:
 		return matches[0], nil
 	default:
-		return "", fmt.Errorf(i18n.Tf("store.ticket.ambiguous", id, matches))
+		return "", errors.New(i18n.Tf("store.ticket.ambiguous", id, matches))
 	}
 }
 

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -34,7 +35,7 @@ var closeCmd = &cobra.Command{
 		}
 
 		if ticket.Status == model.StatusClosed {
-			return fmt.Errorf(i18n.Tf("close.already.closed", ticket.ID))
+			return errors.New(i18n.Tf("close.already.closed", ticket.ID))
 		}
 
 		ticket.Status = model.StatusClosed

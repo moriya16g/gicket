@@ -47,6 +47,24 @@ var messagesEN = map[string]string{
 	"close.already.closed": "Ticket %s is already closed",
 	"close.success":        "Closed ticket: %s - %s",
 
+	// reopen
+	"reopen.short":        "Reopen a closed ticket",
+	"reopen.already.open": "Ticket %s is already open",
+	"reopen.success":      "Reopened ticket: %s - %s",
+
+	// search
+	"search.short":      "Search tickets by keyword",
+	"search.no.results": "No matching tickets found",
+
+	// stats
+	"stats.short":       "Show ticket statistics",
+	"stats.total":       "Total tickets: %d",
+	"stats.by.status":   "By status:",
+	"stats.by.priority": "By priority:",
+
+	// flags
+	"flag.json": "Output in JSON format",
+
 	// serve
 	"serve.short": "Start Web UI",
 	"serve.long":  "Start a Web UI server for ticket management. Browse, create, and edit tickets from your browser.",

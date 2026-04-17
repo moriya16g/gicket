@@ -1,6 +1,7 @@
 package git
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -116,7 +117,7 @@ func installCommitMsgHook(gitRoot string) error {
 			return nil // 既にインストール済み
 		}
 		// 他のフックが存在する → 追記しない（上書きは危険）
-		return fmt.Errorf(i18n.Tf("git.hook.exists", hookPath))
+		return errors.New(i18n.Tf("git.hook.exists", hookPath))
 	}
 
 	script := commitMsgHookScript

@@ -47,6 +47,24 @@ var messagesJA = map[string]string{
 	"close.already.closed": "チケット %s は既にクローズされています",
 	"close.success":        "チケットをクローズしました: %s - %s",
 
+	// reopen
+	"reopen.short":        "クローズされたチケットを再オープンする",
+	"reopen.already.open": "チケット %s は既にオープンされています",
+	"reopen.success":      "チケットを再オープンしました: %s - %s",
+
+	// search
+	"search.short":      "キーワードでチケットを検索する",
+	"search.no.results": "一致するチケットが見つかりません",
+
+	// stats
+	"stats.short":       "チケットの統計を表示する",
+	"stats.total":       "チケット合計: %d",
+	"stats.by.status":   "ステータス別:",
+	"stats.by.priority": "優先度別:",
+
+	// flags
+	"flag.json": "JSON形式で出力する",
+
 	// serve
 	"serve.short": "Web UI を起動する",
 	"serve.long":  "チケット管理用の Web UI サーバーを起動します。ブラウザでチケットの閲覧・作成・編集ができます。",

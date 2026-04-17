@@ -25,18 +25,18 @@ gicket は、Git リポジトリ内に人間が読める YAML テキストファ
 
 **バイナリをダウンロード**（Go 環境不要）:
 
-[GitHub Releases](https://github.com/gicket/gicket/releases) からお使いのプラットフォーム用の最新版をダウンロードし、PATH の通った場所に配置してください。
+[GitHub Releases](https://github.com/moriya16g/gicket/releases) からお使いのプラットフォーム用の最新版をダウンロードし、PATH の通った場所に配置してください。
 
 **Go でインストール**:
 
 ```bash
-go install github.com/gicket/gicket@latest
+go install github.com/moriya16g/gicket@latest
 ```
 
 **ソースからビルドする場合**:
 
 ```bash
-git clone https://github.com/gicket/gicket.git
+git clone https://github.com/moriya16g/gicket.git
 cd gicket
 go build -o gicket .
 ```
@@ -69,6 +69,21 @@ gicket comment <id> -m "対応を開始しました"
 
 # チケットのクローズ
 gicket close <id>
+
+# クローズしたチケットを再オープン
+gicket reopen <id>
+
+# キーワードでチケットを検索
+gicket search "ログイン"
+
+# チケットの統計情報を表示
+gicket stats
+
+# JSON 形式で出力（list, show, search, stats で利用可能）
+gicket list --json
+gicket show <id> --json
+gicket search "bug" --json
+gicket stats --json
 
 # Web UI を起動（デフォルト: http://localhost:8080）
 gicket serve
@@ -136,6 +151,9 @@ your-project/
 | `gicket edit <id>` | チケットのフィールドを編集 |
 | `gicket comment <id>` | チケットにコメントを追加 |
 | `gicket close <id>` | チケットをクローズ |
+| `gicket reopen <id>` | クローズしたチケットを再オープン |
+| `gicket search <keyword>` | キーワードでチケットを検索 |
+| `gicket stats` | チケットの統計情報を表示 |
 | `gicket serve` | Web UI サーバを起動（`-p` でポート指定、デフォルト 8080） |
 | `gicket hook install` | Git フックとカスタムマージドライバをインストール |
 | `gicket hook uninstall` | Git フックとマージドライバをアンインストール |
@@ -243,6 +261,7 @@ export GICKET_LANG=ja
 - [x] **Phase 2**: REST API + Web UI（`gicket serve`）
 - [x] **Phase 3**: Git 連携（フック、マージコンフリクト解決）
 - [x] **Phase 4**: VS Code 拡張
+- [x] **v1.0.0**: 入力バリデーション、検索、再オープン、統計、JSON出力、設定ファイル
 
 ## 類似プロジェクト
 
