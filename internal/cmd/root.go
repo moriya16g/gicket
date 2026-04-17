@@ -23,4 +23,5 @@ func init() {
 	rootCmd.AddCommand(editCmd)
 	rootCmd.AddCommand(commentCmd)
 	rootCmd.AddCommand(closeCmd)
+	rootCmd.AddCommand(serveCmd)
 }

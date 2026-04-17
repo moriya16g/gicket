@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gicket</title>
+<style>
+:root, [data-theme="light"] {
+  --bg: #f6f8fa;
+  --surface: #ffffff;
+  --surface2: #f0f2f5;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --text-secondary: #656d76;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --green: #1a7f37;
+  --red: #cf222e;
+  --orange: #9a6700;
+  --purple: #8250df;
+  --modal-backdrop: rgba(0,0,0,0.3);
+  --priority-high-bg: rgba(207,34,46,0.1);
+  --priority-med-bg: rgba(154,103,0,0.1);
+  --priority-low-bg: rgba(26,127,55,0.1);
+}
+
+[data-theme="dark"] {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #21262d;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-secondary: #8b949e;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --orange: #d29922;
+  --purple: #bc8cff;
+  --modal-backdrop: rgba(0,0,0,0.6);
+  --priority-high-bg: rgba(248,81,73,0.15);
+  --priority-med-bg: rgba(210,153,34,0.15);
+  --priority-low-bg: rgba(63,185,80,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Header */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header h1 { font-size: 20px; font-weight: 600; }
+.header h1 span { color: var(--accent); }
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+/* Buttons */
+.btn {
+  padding: 6px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s;
+}
+.btn:hover { background: var(--border); }
+.btn-primary {
+  background: #238636;
+  border-color: #2ea043;
+  color: #fff;
+}
+.btn-primary:hover { background: #2ea043; }
+.btn-sm { padding: 3px 10px; font-size: 12px; }
+
+/* Layout */
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+/* Tabs / Filters */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.filter-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 2px;
+  border: 1px solid var(--border);
+}
+.filter-tab {
+  padding: 6px 14px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.15s;
+}
+.filter-tab.active {
+  background: var(--accent);
+  color: #fff;
+}
+.filter-tab:hover:not(.active) { color: var(--text); }
+
+.search-box {
+  padding: 6px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 14px;
+  width: 250px;
+}
+.search-box:focus { outline: none; border-color: var(--accent); }
+
+/* Ticket List */
+.ticket-list { display: flex; flex-direction: column; gap: 2px; }
+
+.ticket-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.ticket-row:hover { border-color: var(--accent); }
+
+.ticket-status {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.ticket-status.open { background: var(--green); }
+.ticket-status.in-progress { background: var(--orange); }
+.ticket-status.closed { background: var(--purple); }
+
+.ticket-info { min-width: 0; }
+.ticket-title {
+  font-weight: 500;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ticket-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.ticket-labels { display: flex; gap: 4px; flex-wrap: wrap; }
+.label-tag {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.priority-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.priority-badge.high { background: var(--priority-high-bg); color: var(--red); }
+.priority-badge.medium { background: var(--priority-med-bg); color: var(--orange); }
+.priority-badge.low { background: var(--priority-low-bg); color: var(--green); }
+
+.ticket-assignee {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}
+.empty-state h3 { font-size: 20px; margin-bottom: 8px; color: var(--text); }
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--modal-backdrop);
+  z-index: 100;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 80px;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-header h2 { font-size: 16px; }
+.modal-close {
+  background: none; border: none; color: var(--text-secondary);
+  font-size: 20px; cursor: pointer; padding: 4px;
+}
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 20px; }
+.modal-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Form */
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--text-secondary);
+}
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.form-textarea { min-height: 80px; resize: vertical; }
+
+/* Detail View */
+.detail-panel {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-top: 16px;
+}
+.detail-panel.active { display: block; }
+.detail-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.detail-title { font-size: 20px; font-weight: 600; flex: 1; }
+.detail-actions { display: flex; gap: 8px; }
+.detail-body { padding: 20px; }
+.detail-grid {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px 16px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+.detail-label { color: var(--text-secondary); font-weight: 500; }
+
+.detail-description {
+  padding: 16px;
+  background: var(--bg);
+  border-radius: 6px;
+  margin-bottom: 20px;
+  white-space: pre-wrap;
+  font-size: 14px;
+}
+
+/* Comments */
+.comments-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text-secondary);
+}
+.comment-item {
+  padding: 12px 16px;
+  background: var(--bg);
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+.comment-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.comment-body { font-size: 14px; white-space: pre-wrap; }
+
+.comment-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.comment-form input { flex: 1; }
+
+/* Stats Bar */
+.stats-bar {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  flex: 1;
+  text-align: center;
+}
+.stat-value { font-size: 28px; font-weight: 700; }
+.stat-value.open { color: var(--green); }
+.stat-value.in-progress { color: var(--orange); }
+.stat-value.closed { color: var(--purple); }
+.stat-value.total { color: var(--accent); }
+.stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+/* Kanban */
+.view-toggle { display: flex; gap: 4px; }
+.kanban-board {
+  display: none;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.kanban-board.active { display: grid; }
+.kanban-column {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-height: 300px;
+}
+.kanban-column-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.kanban-column-header .dot {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.kanban-column-header .count {
+  background: var(--surface2);
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.kanban-cards { padding: 8px; display: flex; flex-direction: column; gap: 8px; }
+.kanban-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.kanban-card:hover { border-color: var(--accent); }
+.kanban-card-title { font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+.kanban-card-meta { font-size: 11px; color: var(--text-secondary); }
+
+@media (max-width: 768px) {
+  .kanban-board { grid-template-columns: 1fr; }
+  .ticket-row { grid-template-columns: auto 1fr auto; }
+  .ticket-labels, .ticket-assignee { display: none; }
+  .stats-bar { flex-wrap: wrap; }
+  .stat-card { flex: 1 1 45%; }
+  .search-box { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span>gicket</span></h1>
+  <div class="header-actions">
+    <button class="btn btn-sm" id="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark mode">🌙 Dark</button>
+    <button class="btn btn-primary" onclick="openNewModal()">+ New Ticket</button>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-value open" id="stat-open">0</div><div class="stat-label">Open</div></div>
+    <div class="stat-card"><div class="stat-value in-progress" id="stat-progress">0</div><div class="stat-label">In Progress</div></div>
+    <div class="stat-card"><div class="stat-value closed" id="stat-closed">0</div><div class="stat-label">Closed</div></div>
+    <div class="stat-card"><div class="stat-value total" id="stat-total">0</div><div class="stat-label">Total</div></div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div style="display:flex;gap:12px;align-items:center;">
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all" onclick="setFilter('all',this)">All</button>
+        <button class="filter-tab" data-filter="open" onclick="setFilter('open',this)">Open</button>
+        <button class="filter-tab" data-filter="in-progress" onclick="setFilter('in-progress',this)">In Progress</button>
+        <button class="filter-tab" data-filter="closed" onclick="setFilter('closed',this)">Closed</button>
+      </div>
+      <div class="view-toggle">
+        <button class="btn btn-sm" id="btn-list" onclick="setView('list')" title="List View">☰ List</button>
+        <button class="btn btn-sm" id="btn-kanban" onclick="setView('kanban')" title="Kanban View">▦ Kanban</button>
+      </div>
+    </div>
+    <input type="text" class="search-box" placeholder="Search tickets..." oninput="filterTickets(this.value)">
+  </div>
+
+  <!-- List View -->
+  <div class="ticket-list" id="ticket-list"></div>
+
+  <!-- Kanban View -->
+  <div class="kanban-board" id="kanban-board">
+    <div class="kanban-column">
+      <div class="kanban-column-header"><span class="dot" style="background:var(--green)"></span>Open <span class="count" id="kanban-open-count">0</span></div>
+      <div class="kanban-cards" id="kanban-open"></div>
+    </div>
+    <div class="kanban-column">
+      <div class="kanban-column-header"><span class="dot" style="background:var(--orange)"></span>In Progress <span class="count" id="kanban-progress-count">0</span></div>
+      <div class="kanban-cards" id="kanban-in-progress"></div>
+    </div>
+    <div class="kanban-column">
+      <div class="kanban-column-header"><span class="dot" style="background:var(--purple)"></span>Closed <span class="count" id="kanban-closed-count">0</span></div>
+      <div class="kanban-cards" id="kanban-closed"></div>
+    </div>
+  </div>
+
+  <!-- Detail Panel -->
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-header">
+      <div class="detail-title" id="detail-title"></div>
+      <div class="detail-actions">
+        <button class="btn btn-sm" onclick="openEditModal()">Edit</button>
+        <button class="btn btn-sm" onclick="closeDetail()">✕</button>
+      </div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-grid">
+        <div class="detail-label">ID</div><div id="detail-id"></div>
+        <div class="detail-label">Status</div><div id="detail-status"></div>
+        <div class="detail-label">Priority</div><div id="detail-priority"></div>
+        <div class="detail-label">Author</div><div id="detail-author"></div>
+        <div class="detail-label">Assignee</div><div id="detail-assignee"></div>
+        <div class="detail-label">Labels</div><div id="detail-labels"></div>
+        <div class="detail-label">Created</div><div id="detail-created"></div>
+        <div class="detail-label">Updated</div><div id="detail-updated"></div>
+      </div>
+      <div class="detail-description" id="detail-description"></div>
+      <div class="comments-section">
+        <h3 id="comments-header">Comments</h3>
+        <div id="comments-list"></div>
+        <div class="comment-form">
+          <input type="text" class="form-input" id="comment-input" placeholder="Add a comment...">
+          <button class="btn btn-primary btn-sm" onclick="submitComment()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New/Edit Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">New Ticket</h2>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Title *</label>
+        <input type="text" class="form-input" id="form-title">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group">
+          <label>Priority</label>
+          <select class="form-select" id="form-priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select class="form-select" id="form-status">
+            <option value="open">Open</option>
+            <option value="in-progress">In Progress</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Assignee</label>
+        <input type="text" class="form-input" id="form-assignee" placeholder="email@example.com">
+      </div>
+      <div class="form-group">
+        <label>Labels (comma separated)</label>
+        <input type="text" class="form-input" id="form-labels" placeholder="bug, frontend">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea class="form-textarea" id="form-description" rows="4"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="modal-submit" onclick="submitTicket()">Create</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '/api/tickets';
+let tickets = [];
+let currentFilter = 'all';
+let currentSearch = '';
+let currentView = 'list';
+let selectedTicket = null;
+let editingId = null;
+let scrollTargetId = null;
+
+async function fetchTickets() {
+  const res = await fetch(API + '?status=all');
+  tickets = await res.json();
+  updateStats();
+  render();
+}
+
+function updateStats() {
+  const open = tickets.filter(t => t.status === 'open').length;
+  const prog = tickets.filter(t => t.status === 'in-progress').length;
+  const closed = tickets.filter(t => t.status === 'closed').length;
+  document.getElementById('stat-open').textContent = open;
+  document.getElementById('stat-progress').textContent = prog;
+  document.getElementById('stat-closed').textContent = closed;
+  document.getElementById('stat-total').textContent = tickets.length;
+}
+
+function getFiltered() {
+  return tickets.filter(t => {
+    if (currentFilter !== 'all' && t.status !== currentFilter) return false;
+    if (currentSearch) {
+      const s = currentSearch.toLowerCase();
+      return t.title.toLowerCase().includes(s) ||
+             t.id.toLowerCase().includes(s) ||
+             (t.assignee || '').toLowerCase().includes(s) ||
+             (t.labels || []).some(l => l.toLowerCase().includes(s)) ||
+             (t.description || '').toLowerCase().includes(s);
+    }
+    return true;
+  });
+}
+
+function render() {
+  const filtered = getFiltered();
+  renderList(filtered);
+  renderKanban(filtered);
+}
+
+function renderList(filtered) {
+  const el = document.getElementById('ticket-list');
+  if (filtered.length === 0) {
+    el.innerHTML = '<div class="empty-state"><h3>No tickets found</h3><p>Create a new ticket to get started.</p></div>';
+    return;
+  }
+  el.innerHTML = filtered.map(t => `
+    <div class="ticket-row" data-ticket-id="${t.id}" onclick="showDetail('${t.id}')">
+      <div class="ticket-status ${t.status}"></div>
+      <div class="ticket-info">
+        <div class="ticket-title">${esc(t.title)}</div>
+        <div class="ticket-meta">${t.id} · ${fmtDate(t.created)}</div>
+      </div>
+      <div class="ticket-labels">${(t.labels||[]).map(l=>`<span class="label-tag">${esc(l)}</span>`).join('')}</div>
+      <span class="priority-badge ${t.priority}">${t.priority}</span>
+      <span class="ticket-assignee">${esc(t.assignee||'—')}</span>
+    </div>
+  `).join('');
+}
+
+function renderKanban(filtered) {
+  ['open','in-progress','closed'].forEach(status => {
+    const cards = filtered.filter(t => t.status === status);
+    const key = status === 'in-progress' ? 'progress' : status;
+    const countEl = document.getElementById(`kanban-${status === 'in-progress' ? 'progress' : status}-count`);
+    if(countEl) countEl.textContent = cards.length;
+    const container = document.getElementById(`kanban-${status}`);
+    container.innerHTML = cards.map(t => `
+      <div class="kanban-card" onclick="showDetail('${t.id}')">
+        <div class="kanban-card-title">${esc(t.title)}</div>
+        <div class="kanban-card-meta">
+          <span class="priority-badge ${t.priority}" style="margin-right:4px">${t.priority}</span>
+          ${esc(t.assignee||'')}
+        </div>
+      </div>
+    `).join('');
+  });
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function filterTickets(q) { currentSearch = q; render(); }
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('ticket-list').style.display = v === 'list' ? 'flex' : 'none';
+  document.getElementById('kanban-board').classList.toggle('active', v === 'kanban');
+}
+
+function showDetail(id) {
+  selectedTicket = tickets.find(t => t.id === id);
+  if (!selectedTicket) return;
+  scrollTargetId = id;
+  const t = selectedTicket;
+  document.getElementById('detail-title').textContent = t.title;
+  document.getElementById('detail-id').textContent = t.id;
+  document.getElementById('detail-status').innerHTML = `<span class="priority-badge ${t.status}">${t.status}</span>`;
+  document.getElementById('detail-priority').innerHTML = `<span class="priority-badge ${t.priority}">${t.priority}</span>`;
+  document.getElementById('detail-author').textContent = t.author || '—';
+  document.getElementById('detail-assignee').textContent = t.assignee || '—';
+  document.getElementById('detail-labels').innerHTML = (t.labels||[]).map(l=>`<span class="label-tag">${esc(l)}</span>`).join(' ') || '—';
+  document.getElementById('detail-created').textContent = fmtDate(t.created);
+  document.getElementById('detail-updated').textContent = fmtDate(t.updated);
+  document.getElementById('detail-description').textContent = t.description || 'No description.';
+
+  const comments = t.comments || [];
+  document.getElementById('comments-header').textContent = `Comments (${comments.length})`;
+  document.getElementById('comments-list').innerHTML = comments.map(c => `
+    <div class="comment-item">
+      <div class="comment-meta">${esc(c.author)} · ${fmtDate(c.date)}</div>
+      <div class="comment-body">${esc(c.body)}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('detail-panel').classList.add('active');
+  document.getElementById('detail-panel').scrollIntoView({ behavior: 'smooth' });
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('active');
+  selectedTicket = null;
+  if (scrollTargetId) {
+    const row = document.querySelector(`[data-ticket-id="${scrollTargetId}"]`);
+    if (row) {
+      requestAnimationFrame(() => row.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+    }
+    scrollTargetId = null;
+  }
+}
+
+function openNewModal() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'New Ticket';
+  document.getElementById('modal-submit').textContent = 'Create';
+  document.getElementById('form-title').value = '';
+  document.getElementById('form-priority').value = 'medium';
+  document.getElementById('form-status').value = 'open';
+  document.getElementById('form-assignee').value = '';
+  document.getElementById('form-labels').value = '';
+  document.getElementById('form-description').value = '';
+  document.getElementById('form-status').parentElement.style.display = 'none';
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+function openEditModal() {
+  if (!selectedTicket) return;
+  editingId = selectedTicket.id;
+  document.getElementById('modal-title').textContent = 'Edit Ticket';
+  document.getElementById('modal-submit').textContent = 'Save';
+  document.getElementById('form-title').value = selectedTicket.title;
+  document.getElementById('form-priority').value = selectedTicket.priority;
+  document.getElementById('form-status').value = selectedTicket.status;
+  document.getElementById('form-assignee').value = selectedTicket.assignee || '';
+  document.getElementById('form-labels').value = (selectedTicket.labels||[]).join(', ');
+  document.getElementById('form-description').value = selectedTicket.description || '';
+  document.getElementById('form-status').parentElement.style.display = '';
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('active');
+}
+
+async function submitTicket() {
+  const title = document.getElementById('form-title').value.trim();
+  if (!title) { alert('Title is required'); return; }
+
+  const labels = document.getElementById('form-labels').value
+    .split(',').map(s => s.trim()).filter(Boolean);
+
+  if (editingId) {
+    const body = {
+      title: title,
+      priority: document.getElementById('form-priority').value,
+      status: document.getElementById('form-status').value,
+      assignee: document.getElementById('form-assignee').value.trim(),
+      labels: labels,
+      description: document.getElementById('form-description').value,
+    };
+    await fetch(API + '/' + editingId, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  } else {
+    const body = {
+      title: title,
+      priority: document.getElementById('form-priority').value,
+      assignee: document.getElementById('form-assignee').value.trim(),
+      labels: labels,
+      description: document.getElementById('form-description').value,
+    };
+    await fetch(API, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  }
+  closeModal();
+  await fetchTickets();
+  if (editingId) showDetail(editingId);
+}
+
+async function submitComment() {
+  if (!selectedTicket) return;
+  const input = document.getElementById('comment-input');
+  const body = input.value.trim();
+  if (!body) return;
+  await fetch(API + '/' + selectedTicket.id + '/comments', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ body }),
+  });
+  input.value = '';
+  await fetchTickets();
+  showDetail(selectedTicket.id);
+}
+
+// Handle Enter key for comment
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.activeElement.id === 'comment-input') submitComment();
+});
+
+// Close modal on overlay click
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+function fmtDate(s) {
+  if (!s) return '—';
+  const d = new Date(s);
+  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+}
+
+// Theme toggle
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme') || 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('gicket-theme', next);
+  updateThemeButton(next);
+}
+
+function updateThemeButton(theme) {
+  const btn = document.getElementById('theme-toggle');
+  btn.textContent = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem('gicket-theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  updateThemeButton(saved);
+})();
+
+fetchTickets();
+</script>
+</body>
+</html>
