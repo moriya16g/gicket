@@ -17,6 +17,7 @@ gicket manages tickets as human-readable YAML text files inside a Git repository
 - **Built-in Web UI**: Rich browser-based interface with Kanban board, filters, and light/dark theme
 - **REST API**: Full HTTP API for integration with external tools
 - **VS Code extension**: Manage tickets directly from your editor
+- **Multilingual**: English (default) and Japanese UI — switchable via environment variable
 
 ## Quick Start
 
@@ -212,6 +213,23 @@ npm run compile
 ```
 
 The extension activates automatically when a workspace contains a `.gicket` directory.
+
+## Language / i18n
+
+gicket supports English (default) and Japanese. Set the language with an environment variable:
+
+```bash
+# English (default)
+gicket list
+
+# Japanese
+GICKET_LANG=ja gicket list
+
+# Or set system-wide
+export GICKET_LANG=ja
+```
+
+Detection priority: `GICKET_LANG` > `LANG` > English.
 
 ## Roadmap
 

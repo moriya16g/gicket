@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gicket/gicket/internal/i18n"
 	"github.com/gicket/gicket/internal/model"
 	"github.com/gicket/gicket/internal/store"
 	"github.com/spf13/cobra"
@@ -14,7 +15,7 @@ var commentBody string
 
 var commentCmd = &cobra.Command{
 	Use:   "comment <id>",
-	Short: "チケットにコメントを追加する",
+	Short: i18n.T("comment.short"),
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cwd, err := os.Getwd()
@@ -31,7 +32,7 @@ var commentCmd = &cobra.Command{
 		}
 
 		if commentBody == "" {
-			return fmt.Errorf("コメント内容は必須です (-m フラグで指定)")
+			return fmt.Errorf(i18n.T("comment.body.required"))
 		}
 
 		ticket, err := s.Load(args[0])
@@ -49,11 +50,11 @@ var commentCmd = &cobra.Command{
 		if err := s.Save(ticket); err != nil {
 			return err
 		}
-		fmt.Printf("コメントを追加しました: %s\n", ticket.ID)
+		fmt.Println(i18n.Tf("comment.success", ticket.ID))
 		return nil
 	},
 }
 
 func init() {
-	commentCmd.Flags().StringVarP(&commentBody, "message", "m", "", "コメント内容 (必須)")
+	commentCmd.Flags().StringVarP(&commentBody, "message", "m", "", i18n.T("comment.flag.message"))
 }

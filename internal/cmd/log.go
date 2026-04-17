@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/gicket/gicket/internal/i18n"
 	gitutil "github.com/gicket/gicket/internal/git"
 	"github.com/gicket/gicket/internal/store"
 	"github.com/spf13/cobra"
@@ -14,8 +15,8 @@ var logCount int
 
 var logCmd = &cobra.Command{
 	Use:   "log <ticket-id>",
-	Short: "チケットに関連する Git コミット履歴を表示する",
-	Long:  "コミットメッセージにチケットIDが含まれるコミットを検索して表示します。",
+	Short: i18n.T("log.short"),
+	Long:  i18n.T("log.long"),
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cwd, err := os.Getwd()
@@ -81,22 +82,22 @@ var logCmd = &cobra.Command{
 			}
 		}
 
-		fmt.Printf("チケット: %s - %s\n", ticket.ID, ticket.Title)
+		fmt.Println(i18n.Tf("log.header", ticket.ID, ticket.Title))
 		fmt.Println(strings.Repeat("─", 60))
 
 		if len(lines) == 0 {
-			fmt.Println("関連するコミットが見つかりません")
+			fmt.Println(i18n.T("log.no.commits"))
 			return nil
 		}
 
 		for _, line := range lines {
 			fmt.Println(line)
 		}
-		fmt.Printf("\n%d 件のコミットが見つかりました\n", len(lines))
+		fmt.Println(i18n.Tf("log.count", len(lines)))
 		return nil
 	},
 }
 
 func init() {
-	logCmd.Flags().IntVarP(&logCount, "count", "n", 50, "表示するコミット数の上限")
+	logCmd.Flags().IntVarP(&logCount, "count", "n", 50, i18n.T("log.flag.count"))
 }

@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gicket/gicket/internal/i18n"
 	"github.com/gicket/gicket/internal/model"
 	"github.com/gicket/gicket/internal/store"
 	"github.com/spf13/cobra"
@@ -19,7 +20,7 @@ var (
 
 var newCmd = &cobra.Command{
 	Use:   "new",
-	Short: "新しいチケットを作成する",
+	Short: i18n.T("new.short"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cwd, err := os.Getwd()
 		if err != nil {
@@ -35,7 +36,7 @@ var newCmd = &cobra.Command{
 		}
 
 		if newTitle == "" {
-			return fmt.Errorf("タイトルは必須です (-t フラグで指定)")
+			return fmt.Errorf(i18n.T("new.title.required"))
 		}
 
 		now := time.Now()
@@ -54,14 +55,14 @@ var newCmd = &cobra.Command{
 		if err := s.Save(ticket); err != nil {
 			return err
 		}
-		fmt.Printf("チケットを作成しました: %s - %s\n", ticket.ID, ticket.Title)
+		fmt.Println(i18n.Tf("new.success", ticket.ID, ticket.Title))
 		return nil
 	},
 }
 
 func init() {
-	newCmd.Flags().StringVarP(&newTitle, "title", "t", "", "チケットのタイトル (必須)")
-	newCmd.Flags().StringVarP(&newPriority, "priority", "p", "medium", "優先度 (low/medium/high)")
-	newCmd.Flags().StringSliceVarP(&newLabels, "label", "l", nil, "ラベル (複数指定可)")
-	newCmd.Flags().StringVarP(&newAssignee, "assignee", "a", "", "担当者")
+	newCmd.Flags().StringVarP(&newTitle, "title", "t", "", i18n.T("new.flag.title"))
+	newCmd.Flags().StringVarP(&newPriority, "priority", "p", "medium", i18n.T("new.flag.priority"))
+	newCmd.Flags().StringSliceVarP(&newLabels, "label", "l", nil, i18n.T("new.flag.label"))
+	newCmd.Flags().StringVarP(&newAssignee, "assignee", "a", "", i18n.T("new.flag.assignee"))
 }

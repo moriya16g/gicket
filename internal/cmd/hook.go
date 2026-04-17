@@ -4,23 +4,21 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gicket/gicket/internal/i18n"
 	gitutil "github.com/gicket/gicket/internal/git"
 	"github.com/spf13/cobra"
 )
 
 var hookCmd = &cobra.Command{
 	Use:   "hook",
-	Short: "Git フックを管理する",
-	Long:  "commit-msg フックとカスタムマージドライバをインストール/アンインストールします。",
+	Short: i18n.T("hook.short"),
+	Long:  i18n.T("hook.long"),
 }
 
 var hookInstallCmd = &cobra.Command{
 	Use:   "install",
-	Short: "Git フックとマージドライバをインストールする",
-	Long: `以下をインストールします:
-  - commit-msg フック: コミットメッセージ内のチケットID参照を検証
-  - カスタムマージドライバ: .gicket/issues/*.yml の3-wayマージを自動処理
-  - .gitattributes: マージドライバの適用ルール`,
+	Short: i18n.T("hook.install.short"),
+	Long:  i18n.T("hook.install.long"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cwd, err := os.Getwd()
 		if err != nil {
@@ -35,12 +33,12 @@ var hookInstallCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("Git フックをインストールしました:")
-		fmt.Println("  ✓ commit-msg フック")
-		fmt.Println("  ✓ カスタムマージドライバ (merge.gicket)")
-		fmt.Println("  ✓ .gitattributes")
+		fmt.Println(i18n.T("hook.install.success"))
+		fmt.Println(i18n.T("hook.install.commitmsg"))
+		fmt.Println(i18n.T("hook.install.mergedriver"))
+		fmt.Println(i18n.T("hook.install.gitattr"))
 		fmt.Println()
-		fmt.Println("チケットID参照を必須にするには:")
+		fmt.Println(i18n.T("hook.install.require.id"))
 		fmt.Println("  export GICKET_HOOK_REQUIRE_ID=1")
 		return nil
 	},
@@ -48,7 +46,7 @@ var hookInstallCmd = &cobra.Command{
 
 var hookUninstallCmd = &cobra.Command{
 	Use:   "uninstall",
-	Short: "Git フックとマージドライバをアンインストールする",
+	Short: i18n.T("hook.uninstall.short"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cwd, err := os.Getwd()
 		if err != nil {
@@ -63,7 +61,7 @@ var hookUninstallCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("Git フックをアンインストールしました")
+		fmt.Println(i18n.T("hook.uninstall.success"))
 		return nil
 	},
 }

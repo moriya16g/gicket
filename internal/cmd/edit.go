@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gicket/gicket/internal/i18n"
 	"github.com/gicket/gicket/internal/model"
 	"github.com/gicket/gicket/internal/store"
 	"github.com/spf13/cobra"
@@ -20,7 +21,7 @@ var (
 
 var editCmd = &cobra.Command{
 	Use:   "edit <id>",
-	Short: "チケットを編集する",
+	Short: i18n.T("edit.short"),
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cwd, err := os.Getwd()
@@ -63,16 +64,16 @@ var editCmd = &cobra.Command{
 		if err := s.Save(ticket); err != nil {
 			return err
 		}
-		fmt.Printf("チケットを更新しました: %s\n", ticket.ID)
+		fmt.Println(i18n.Tf("edit.success", ticket.ID))
 		return nil
 	},
 }
 
 func init() {
-	editCmd.Flags().StringVarP(&editTitle, "title", "t", "", "タイトル")
-	editCmd.Flags().StringVarP(&editPriority, "priority", "p", "", "優先度 (low/medium/high)")
-	editCmd.Flags().StringVarP(&editStatus, "status", "s", "", "ステータス (open/in-progress/closed)")
-	editCmd.Flags().StringVarP(&editAssignee, "assignee", "a", "", "担当者")
-	editCmd.Flags().StringSliceVarP(&editLabels, "label", "l", nil, "ラベル")
-	editCmd.Flags().StringVarP(&editDesc, "description", "d", "", "説明")
+	editCmd.Flags().StringVarP(&editTitle, "title", "t", "", i18n.T("edit.flag.title"))
+	editCmd.Flags().StringVarP(&editPriority, "priority", "p", "", i18n.T("edit.flag.priority"))
+	editCmd.Flags().StringVarP(&editStatus, "status", "s", "", i18n.T("edit.flag.status"))
+	editCmd.Flags().StringVarP(&editAssignee, "assignee", "a", "", i18n.T("edit.flag.assignee"))
+	editCmd.Flags().StringSliceVarP(&editLabels, "label", "l", nil, i18n.T("edit.flag.label"))
+	editCmd.Flags().StringVarP(&editDesc, "description", "d", "", i18n.T("edit.flag.description"))
 }

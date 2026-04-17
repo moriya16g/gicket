@@ -5,13 +5,14 @@ import (
 	"os"
 	"strings"
 
+	"github.com/gicket/gicket/internal/i18n"
 	"github.com/gicket/gicket/internal/store"
 	"github.com/spf13/cobra"
 )
 
 var showCmd = &cobra.Command{
 	Use:   "show <id>",
-	Short: "チケットの詳細を表示する",
+	Short: i18n.T("show.short"),
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cwd, err := os.Getwd()

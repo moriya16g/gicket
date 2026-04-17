@@ -6,6 +6,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/gicket/gicket/internal/i18n"
 	"github.com/gicket/gicket/internal/model"
 	"github.com/gicket/gicket/internal/store"
 	"github.com/spf13/cobra"
@@ -15,7 +16,7 @@ var listAll bool
 
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "チケットの一覧を表示する",
+	Short: i18n.T("list.short"),
 	Aliases: []string{"ls"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cwd, err := os.Getwd()
@@ -42,7 +43,7 @@ var listCmd = &cobra.Command{
 		}
 
 		if len(tickets) == 0 {
-			fmt.Println("チケットはありません")
+			fmt.Println(i18n.T("list.no.tickets"))
 			return nil
 		}
 
@@ -63,5 +64,5 @@ var listCmd = &cobra.Command{
 }
 
 func init() {
-	listCmd.Flags().BoolVarP(&listAll, "all", "a", false, "すべてのステータスのチケットを表示")
+	listCmd.Flags().BoolVarP(&listAll, "all", "a", false, i18n.T("list.flag.all"))
 }

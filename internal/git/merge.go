@@ -6,6 +6,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/gicket/gicket/internal/i18n"
 	"github.com/gicket/gicket/internal/model"
 	"gopkg.in/yaml.v3"
 )
@@ -16,29 +17,29 @@ import (
 func MergeTicketFiles(ancestorPath, oursPath, theirsPath string) error {
 	ancestor, err := loadTicketFile(ancestorPath)
 	if err != nil {
-		return fmt.Errorf("ancestor の読み込みに失敗: %w", err)
+		return fmt.Errorf(i18n.T("merge.ancestor.read"), err)
 	}
 	ours, err := loadTicketFile(oursPath)
 	if err != nil {
-		return fmt.Errorf("ours の読み込みに失敗: %w", err)
+		return fmt.Errorf(i18n.T("merge.ours.read"), err)
 	}
 	theirs, err := loadTicketFile(theirsPath)
 	if err != nil {
-		return fmt.Errorf("theirs の読み込みに失敗: %w", err)
+		return fmt.Errorf(i18n.T("merge.theirs.read"), err)
 	}
 
 	merged, conflict := mergeTickets(ancestor, ours, theirs)
 
 	data, err := yaml.Marshal(merged)
 	if err != nil {
-		return fmt.Errorf("マージ結果のマーシャルに失敗: %w", err)
+		return fmt.Errorf(i18n.T("merge.marshal"), err)
 	}
 	if err := os.WriteFile(oursPath, data, 0644); err != nil {
-		return fmt.Errorf("マージ結果の書き込みに失敗: %w", err)
+		return fmt.Errorf(i18n.T("merge.write"), err)
 	}
 
 	if conflict {
-		return fmt.Errorf("CONFLICT: チケット %s のフィールドが両方のブランチで異なる値に変更されました", merged.ID)
+		return fmt.Errorf(i18n.Tf("merge.conflict", merged.ID))
 	}
 	return nil
 }

@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gicket/gicket/internal/i18n"
 	"github.com/gicket/gicket/internal/store"
 	"github.com/spf13/cobra"
 )
 
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "現在のディレクトリに gicket を初期化する",
+	Short: i18n.T("init.short"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cwd, err := os.Getwd()
 		if err != nil {
@@ -23,7 +24,7 @@ var initCmd = &cobra.Command{
 		if err := s.Init(); err != nil {
 			return err
 		}
-		fmt.Println("gicket を初期化しました (.gicket/)")
+		fmt.Println(i18n.T("init.success"))
 		return nil
 	},
 }

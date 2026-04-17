@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gicket/gicket/internal/i18n"
 	"github.com/gicket/gicket/internal/model"
 	"gopkg.in/yaml.v3"
 )
@@ -38,7 +39,7 @@ func FindRoot(startDir string) (string, error) {
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
-			return "", fmt.Errorf(".gicket ディレクトリが見つかりません。'gicket init' で初期化してください")
+			return "", fmt.Errorf(i18n.T("store.gicket.not.found"))
 		}
 		dir = parent
 	}
@@ -52,7 +53,7 @@ func (s *Store) Init() error {
 	}
 	for _, d := range dirs {
 		if err := os.MkdirAll(d, 0755); err != nil {
-			return fmt.Errorf("ディレクトリ作成に失敗: %w", err)
+			return fmt.Errorf(i18n.T("store.dir.create.failed"), err)
 		}
 	}
 
@@ -63,10 +64,10 @@ func (s *Store) Init() error {
 		}
 		data, err := yaml.Marshal(config)
 		if err != nil {
-			return fmt.Errorf("config のマーシャルに失敗: %w", err)
+			return fmt.Errorf(i18n.T("store.config.marshal"), err)
 		}
 		if err := os.WriteFile(configPath, data, 0644); err != nil {
-			return fmt.Errorf("config の書き込みに失敗: %w", err)
+			return fmt.Errorf(i18n.T("store.config.write"), err)
 		}
 	}
 	return nil
@@ -77,11 +78,11 @@ func (s *Store) Save(ticket *model.Ticket) error {
 	ticket.Updated = time.Now()
 	data, err := yaml.Marshal(ticket)
 	if err != nil {
-		return fmt.Errorf("チケットのマーシャルに失敗: %w", err)
+		return fmt.Errorf(i18n.T("store.ticket.marshal"), err)
 	}
 	filePath := s.ticketPath(ticket.ID)
 	if err := os.WriteFile(filePath, data, 0644); err != nil {
-		return fmt.Errorf("チケットの保存に失敗: %w", err)
+		return fmt.Errorf(i18n.T("store.ticket.save"), err)
 	}
 	return nil
 }
@@ -96,12 +97,12 @@ func (s *Store) Load(id string) (*model.Ticket, error) {
 
 	data, err := os.ReadFile(s.ticketPath(fullID))
 	if err != nil {
-		return nil, fmt.Errorf("チケットの読み込みに失敗: %w", err)
+		return nil, fmt.Errorf(i18n.T("store.ticket.read"), err)
 	}
 
 	var ticket model.Ticket
 	if err := yaml.Unmarshal(data, &ticket); err != nil {
-		return nil, fmt.Errorf("チケットのパースに失敗: %w", err)
+		return nil, fmt.Errorf(i18n.T("store.ticket.parse"), err)
 	}
 	return &ticket, nil
 }
@@ -111,7 +112,7 @@ func (s *Store) List(statusFilter model.Status) ([]*model.Ticket, error) {
 	issuesDir := filepath.Join(s.Root, IssuesDir)
 	entries, err := os.ReadDir(issuesDir)
 	if err != nil {
-		return nil, fmt.Errorf("チケット一覧の取得に失敗: %w", err)
+		return nil, fmt.Errorf(i18n.T("store.ticket.list"), err)
 	}
 
 	var tickets []*model.Ticket
@@ -161,7 +162,7 @@ func (s *Store) resolveID(id string) (string, error) {
 	issuesDir := filepath.Join(s.Root, IssuesDir)
 	entries, err := os.ReadDir(issuesDir)
 	if err != nil {
-		return "", fmt.Errorf("チケットの検索に失敗: %w", err)
+		return "", fmt.Errorf(i18n.T("store.ticket.search"), err)
 	}
 
 	var matches []string
@@ -174,11 +175,11 @@ func (s *Store) resolveID(id string) (string, error) {
 
 	switch len(matches) {
 	case 0:
-		return "", fmt.Errorf("チケット '%s' が見つかりません", id)
+		return "", fmt.Errorf(i18n.Tf("store.ticket.not.found", id))
 	case 1:
 		return matches[0], nil
 	default:
-		return "", fmt.Errorf("ID '%s' は複数のチケットに一致します: %v", id, matches)
+		return "", fmt.Errorf(i18n.Tf("store.ticket.ambiguous", id, matches))
 	}
 }
 

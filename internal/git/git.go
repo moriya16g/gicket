@@ -6,6 +6,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/gicket/gicket/internal/i18n"
 )
 
 // FindGitRoot は .git ディレクトリを探して Git リポジトリのルートを返す
@@ -18,7 +20,7 @@ func FindGitRoot(startDir string) (string, error) {
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
-			return "", fmt.Errorf("Git リポジトリが見つかりません")
+			return "", fmt.Errorf(i18n.T("git.repo.not.found"))
 		}
 		dir = parent
 	}
@@ -50,7 +52,7 @@ func IsInGitRepo(dir string) bool {
 func GitExecutable() (string, error) {
 	path, err := exec.LookPath("git")
 	if err != nil {
-		return "", fmt.Errorf("git コマンドが見つかりません。Git をインストールしてください")
+		return "", fmt.Errorf(i18n.T("git.not.installed"))
 	}
 	return path, nil
 }

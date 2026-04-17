@@ -1,14 +1,14 @@
 package cmd
 
 import (
+	"github.com/gicket/gicket/internal/i18n"
 	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
 	Use:   "gicket",
-	Short: "Git リポジトリ内で動作する分散チケット管理ツール",
-	Long: `gicket は Git リポジトリ内にテキスト(YAML)ベースでチケットを管理するツールです。
-WEBサーバ不要で、Git の push/pull だけで開発者間のチケット共有が可能です。`,
+	Short: i18n.T("root.short"),
+	Long:  i18n.T("root.long"),
 }
 
 func Execute() error {

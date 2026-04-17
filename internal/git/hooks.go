@@ -6,26 +6,28 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/gicket/gicket/internal/i18n"
 )
 
 const commitMsgHookScript = `#!/bin/sh
 # gicket commit-msg hook
-# チケットIDがコミットメッセージに含まれているか検証する（任意）
+# Validates that commit messages contain a ticket ID reference (optional).
 #
-# パターン: gicket:<ID> または gicket:<prefix>
-# 例: "Fix login bug gicket:20260416-200633"
+# Pattern: gicket:<ID> or gicket:<prefix>
+# Example: "Fix login bug gicket:20260416-200633"
 #
-# GICKET_HOOK_REQUIRE_ID=1 を設定すると、チケットID参照を必須にする
+# Set GICKET_HOOK_REQUIRE_ID=1 to make ticket ID references mandatory.
 
 msg=$(cat "$1")
 
 if [ -n "$GICKET_HOOK_REQUIRE_ID" ] && [ "$GICKET_HOOK_REQUIRE_ID" = "1" ]; then
     if ! echo "$msg" | grep -qE 'gicket:[0-9]{8}-[0-9]{6}'; then
-        echo "ERROR: コミットメッセージにチケットIDが含まれていません"
-        echo "  形式: gicket:<ticket-id>"
-        echo "  例:   Fix bug gicket:20260416-200633"
+        echo "ERROR: Commit message does not contain a ticket ID"
+        echo "  Format: gicket:<ticket-id>"
+        echo "  Example: Fix bug gicket:20260416-200633"
         echo ""
-        echo "  この検証を無効にするには: GICKET_HOOK_REQUIRE_ID=0 git commit ..."
+        echo "  To disable this check: GICKET_HOOK_REQUIRE_ID=0 git commit ..."
         exit 1
     fi
 fi
@@ -33,22 +35,22 @@ fi
 
 const commitMsgHookScriptWindows = `#!/bin/sh
 # gicket commit-msg hook
-# チケットIDがコミットメッセージに含まれているか検証する（任意）
+# Validates that commit messages contain a ticket ID reference (optional).
 #
-# パターン: gicket:<ID> または gicket:<prefix>
-# 例: "Fix login bug gicket:20260416-200633"
+# Pattern: gicket:<ID> or gicket:<prefix>
+# Example: "Fix login bug gicket:20260416-200633"
 #
-# GICKET_HOOK_REQUIRE_ID=1 を設定すると、チケットID参照を必須にする
+# Set GICKET_HOOK_REQUIRE_ID=1 to make ticket ID references mandatory.
 
 msg=$(cat "$1")
 
 if [ -n "$GICKET_HOOK_REQUIRE_ID" ] && [ "$GICKET_HOOK_REQUIRE_ID" = "1" ]; then
     if ! echo "$msg" | grep -qE 'gicket:[0-9]{8}-[0-9]{6}'; then
-        echo "ERROR: コミットメッセージにチケットIDが含まれていません"
-        echo "  形式: gicket:<ticket-id>"
-        echo "  例:   Fix bug gicket:20260416-200633"
+        echo "ERROR: Commit message does not contain a ticket ID"
+        echo "  Format: gicket:<ticket-id>"
+        echo "  Example: Fix bug gicket:20260416-200633"
         echo ""
-        echo "  この検証を無効にするには: GICKET_HOOK_REQUIRE_ID=0 git commit ..."
+        echo "  To disable this check: GICKET_HOOK_REQUIRE_ID=0 git commit ..."
         exit 1
     fi
 fi
@@ -65,39 +67,35 @@ func InstallHooks(gitRoot string) error {
 
 	// 1. commit-msg フック
 	if err := installCommitMsgHook(gitRoot); err != nil {
-		return fmt.Errorf("commit-msg フックのインストールに失敗: %w", err)
+		return fmt.Errorf(i18n.T("git.hook.install.fail"), err)
 	}
 
 	// 2. カスタムマージドライバの登録
 	if err := installMergeDriver(gitRoot); err != nil {
-		return fmt.Errorf("マージドライバの設定に失敗: %w", err)
+		return fmt.Errorf(i18n.T("git.merge.driver.fail"), err)
 	}
 
 	// 3. .gitattributes の設定
 	if err := installGitAttributes(gitRoot); err != nil {
-		return fmt.Errorf(".gitattributes の設定に失敗: %w", err)
+		return fmt.Errorf(i18n.T("git.gitattr.fail"), err)
 	}
 
 	return nil
 }
 
-// UninstallHooks はフックとマージドライバ設定を削除する
 func UninstallHooks(gitRoot string) error {
 	if _, err := GitExecutable(); err != nil {
 		return err
 	}
 
-	// 1. commit-msg フックの削除
 	if err := uninstallCommitMsgHook(gitRoot); err != nil {
-		return fmt.Errorf("commit-msg フックの削除に失敗: %w", err)
+		return fmt.Errorf(i18n.T("git.hook.remove.fail"), err)
 	}
 
-	// 2. マージドライバの削除
 	RunGit(gitRoot, "config", "--local", "--remove-section", "merge.gicket")
 
-	// 3. .gitattributes からエントリを削除
 	if err := uninstallGitAttributes(gitRoot); err != nil {
-		return fmt.Errorf(".gitattributes の更新に失敗: %w", err)
+		return fmt.Errorf(i18n.T("git.gitattr.update"), err)
 	}
 
 	return nil
@@ -118,7 +116,7 @@ func installCommitMsgHook(gitRoot string) error {
 			return nil // 既にインストール済み
 		}
 		// 他のフックが存在する → 追記しない（上書きは危険）
-		return fmt.Errorf("commit-msg フックが既に存在します。手動でマージしてください: %s", hookPath)
+		return fmt.Errorf(i18n.Tf("git.hook.exists", hookPath))
 	}
 
 	script := commitMsgHookScript

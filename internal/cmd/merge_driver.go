@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gicket/gicket/internal/i18n"
 	gitutil "github.com/gicket/gicket/internal/git"
 	"github.com/spf13/cobra"
 )
 
 var mergeDriverCmd = &cobra.Command{
 	Use:    "merge-driver <ancestor> <ours> <theirs>",
-	Short:  "カスタムマージドライバ（git が内部的に呼び出す）",
+	Short:  i18n.T("merge_driver.short"),
 	Hidden: true,
 	Args:   cobra.ExactArgs(3),
 	RunE: func(cmd *cobra.Command, args []string) error {
