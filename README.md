@@ -14,6 +14,9 @@ gicket manages tickets as human-readable YAML text files inside a Git repository
 - **Vendor-neutral**: Your data lives in your repository, not on someone else's platform
 - **Single binary**: One executable, no dependencies, cross-platform (Windows / macOS / Linux)
 - **Short ID lookup**: Reference tickets by unique prefix instead of full ID
+- **Built-in Web UI**: Rich browser-based interface with Kanban board, filters, and light/dark theme
+- **REST API**: Full HTTP API for integration with external tools
+- **VS Code extension**: Manage tickets directly from your editor
 
 ## Quick Start
 
@@ -59,6 +62,10 @@ gicket comment <id> -m "Working on this now"
 
 # Close a ticket
 gicket close <id>
+
+# Start Web UI (default: http://localhost:8080)
+gicket serve
+gicket serve -p 3000   # custom port
 ```
 
 ### Share with your team
@@ -122,13 +129,96 @@ your-project/
 | `gicket edit <id>` | Edit ticket fields |
 | `gicket comment <id>` | Add a comment to a ticket |
 | `gicket close <id>` | Close a ticket |
+| `gicket serve` | Start Web UI server (`-p` for port, default 8080) |
+| `gicket hook install` | Install Git hooks and custom merge driver |
+| `gicket hook uninstall` | Uninstall Git hooks and merge driver |
+| `gicket log <id>` | Show Git commits related to a ticket |
+
+## Web UI
+
+Run `gicket serve` to launch a browser-based interface:
+
+- **Dashboard**: Ticket count cards (Open / In Progress / Closed / Total)
+- **List & Kanban views**: Toggle between table list and drag-free Kanban board
+- **Filters**: Status tabs + full-text search
+- **Ticket operations**: Create, edit, close, and comment — all from the browser
+- **Light / Dark theme**: Toggle in the header, preference saved in localStorage
+
+The Web UI is embedded in the binary via `go:embed`, so no extra files are needed.
+
+## REST API
+
+`gicket serve` also exposes a REST API:
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/tickets` | List all tickets |
+| `POST` | `/api/tickets` | Create a new ticket |
+| `GET` | `/api/tickets/{id}` | Get a ticket by ID |
+| `PUT` | `/api/tickets/{id}` | Update a ticket |
+| `DELETE` | `/api/tickets/{id}` | Delete a ticket |
+| `POST` | `/api/tickets/{id}/comments` | Add a comment |
+
+## Git Integration
+
+### Hooks & Merge Driver
+
+```bash
+# Install Git hooks and merge driver
+gicket hook install
+
+# Uninstall
+gicket hook uninstall
+```
+
+`gicket hook install` sets up:
+
+- **commit-msg hook**: Validates ticket ID references in commit messages (pattern: `gicket:<ticket-id>`). Set `GICKET_HOOK_REQUIRE_ID=1` to make it mandatory.
+- **Custom merge driver**: Automatically resolves merge conflicts in `.gicket/issues/*.yml` using smart 3-way merge:
+  - Single-field changes: applies the change
+  - Comments: combines all comments from both branches (deduplication + chronological sort)
+  - Labels: set union with deletion tracking
+  - Status conflicts: prefers `closed` > `in-progress` > `open`
+- **.gitattributes**: Configures the merge driver for ticket files
+
+### Commit Log
+
+```bash
+# Show commits related to a ticket
+gicket log <id>
+gicket log <id> -n 20   # limit to 20 results
+```
+
+Searches for commits that mention the ticket ID in their message or modify the ticket file.
+
+## VS Code Extension
+
+The `vscode-extension/` directory contains a VS Code extension that provides:
+
+- **Sidebar tree view**: Tickets grouped by status (Open / In Progress / Closed) with priority icons
+- **Ticket detail panel**: Rich webview showing all fields, description, and comments
+- **Quick commands**: Create, edit, close, reopen tickets and add comments via input prompts
+- **YAML file access**: Open the raw YAML file for any ticket
+- **Auto-refresh**: File watcher detects changes in `.gicket/issues/` automatically
+- **Zero dependencies at runtime**: Reads/writes YAML files directly — no gicket CLI needed
+
+### Install from source
+
+```bash
+cd vscode-extension
+npm install
+npm run compile
+# Then press F5 in VS Code to launch Extension Development Host
+```
+
+The extension activates automatically when a workspace contains a `.gicket` directory.
 
 ## Roadmap
 
-- [ ] **Phase 1**: CLI core (current)
-- [ ] **Phase 2**: REST API + Web UI (`gicket serve`)
-- [ ] **Phase 3**: Kanban board, real-time filters, dashboard
-- [ ] **Phase 4**: VS Code extension
+- [x] **Phase 1**: CLI core
+- [x] **Phase 2**: REST API + Web UI (`gicket serve`)
+- [x] **Phase 3**: Git integration (hooks, merge conflict resolution)
+- [x] **Phase 4**: VS Code extension
 
 ## Similar Projects
 
@@ -139,7 +229,7 @@ your-project/
 | [SIT](https://github.com/sit-fyi/sit) | Rust | Serverless Information Tracker |
 | [Bugs Everywhere](http://www.bugseverywhere.org/) | Python | Multi-VCS support |
 
-**gicket** differentiates itself by combining human-readable YAML files with a rich Web UI (planned), all delivered as a single binary.
+**gicket** differentiates itself by combining human-readable YAML files with a built-in Web UI, all delivered as a single binary.
 
 ## License
 

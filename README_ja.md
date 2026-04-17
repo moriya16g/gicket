@@ -14,6 +14,9 @@ gicket は、Git リポジトリ内に人間が読める YAML テキストファ
 - **ベンダー非依存**: データは自分のリポジトリに存在し、外部プラットフォームに依存しない
 - **シングルバイナリ**: 実行ファイル1つ、依存なし、クロスプラットフォーム（Windows / macOS / Linux）
 - **短縮ID**: フルIDの代わりにユニークな前方一致でチケットを参照可能
+- **内蔵 Web UI**: カンバンボード、フィルタ、ライト/ダークテーマ対応のブラウザベースインターフェース
+- **REST API**: 外部ツール連携のための HTTP API を完備
+- **VS Code 拡張**: エディタから直接チケットを管理
 
 ## クイックスタート
 
@@ -59,6 +62,10 @@ gicket comment <id> -m "対応を開始しました"
 
 # チケットのクローズ
 gicket close <id>
+
+# Web UI を起動（デフォルト: http://localhost:8080）
+gicket serve
+gicket serve -p 3000   # ポート指定
 ```
 
 ### チームでの共有
@@ -122,13 +129,96 @@ your-project/
 | `gicket edit <id>` | チケットのフィールドを編集 |
 | `gicket comment <id>` | チケットにコメントを追加 |
 | `gicket close <id>` | チケットをクローズ |
+| `gicket serve` | Web UI サーバを起動（`-p` でポート指定、デフォルト 8080） |
+| `gicket hook install` | Git フックとカスタムマージドライバをインストール |
+| `gicket hook uninstall` | Git フックとマージドライバをアンインストール |
+| `gicket log <id>` | チケットに関連する Git コミット履歴を表示 |
+
+## Web UI
+
+`gicket serve` でブラウザベースのインターフェースを起動できます：
+
+- **ダッシュボード**: チケット数カード（Open / In Progress / Closed / Total）
+- **リスト & カンバン表示**: テーブルリストとカンバンボードを切り替え可能
+- **フィルタ**: ステータスタブ + 全文検索
+- **チケット操作**: 作成・編集・クローズ・コメント — すべてブラウザから実行
+- **ライト / ダークテーマ**: ヘッダーで切り替え、設定は localStorage に保存
+
+Web UI は `go:embed` でバイナリに埋め込まれるため、追加ファイルは不要です。
+
+## REST API
+
+`gicket serve` は REST API も提供します：
+
+| メソッド | エンドポイント | 説明 |
+|----------|---------------|------|
+| `GET` | `/api/tickets` | 全チケットの一覧 |
+| `POST` | `/api/tickets` | チケットの新規作成 |
+| `GET` | `/api/tickets/{id}` | ID でチケットを取得 |
+| `PUT` | `/api/tickets/{id}` | チケットの更新 |
+| `DELETE` | `/api/tickets/{id}` | チケットの削除 |
+| `POST` | `/api/tickets/{id}/comments` | コメントの追加 |
+
+## Git 連携
+
+### フック & マージドライバ
+
+```bash
+# Git フックとマージドライバをインストール
+gicket hook install
+
+# アンインストール
+gicket hook uninstall
+```
+
+`gicket hook install` は以下をセットアップします：
+
+- **commit-msg フック**: コミットメッセージ内のチケットID参照を検証（パターン: `gicket:<ticket-id>`）。`GICKET_HOOK_REQUIRE_ID=1` で必須化可能。
+- **カスタムマージドライバ**: `.gicket/issues/*.yml` のマージコンフリクトを3-wayマージで自動解決：
+  - 単一フィールドの変更: そのまま適用
+  - コメント: 両ブランチのコメントを統合（重複除去＋日付順ソート）
+  - ラベル: 削除追跡付き和集合
+  - ステータス競合: `closed` > `in-progress` > `open` の優先順位
+- **.gitattributes**: チケットファイルへのマージドライバ適用ルール
+
+### コミット履歴
+
+```bash
+# チケットに関連するコミットを表示
+gicket log <id>
+gicket log <id> -n 20   # 20件に制限
+```
+
+コミットメッセージにチケットIDが含まれるコミット、またはチケットファイルを変更したコミットを検索します。
+
+## VS Code 拡張
+
+`vscode-extension/` ディレクトリに VS Code 拡張が含まれています：
+
+- **サイドバーツリービュー**: ステータスごとにグループ化（Open / In Progress / Closed）、優先度アイコン付き
+- **チケット詳細パネル**: 全フィールド・説明・コメントを表示するリッチな Webview
+- **クイックコマンド**: 入力プロンプトでチケットの作成・編集・クローズ・再オープン・コメント追加
+- **YAML ファイルアクセス**: 任意のチケットの生 YAML ファイルを開く
+- **自動更新**: `.gicket/issues/` の変更をファイルウォッチャーが自動検知
+- **ランタイム依存ゼロ**: YAML ファイルを直接読み書き — gicket CLI は不要
+
+### ソースからインストール
+
+```bash
+cd vscode-extension
+npm install
+npm run compile
+# VS Code で F5 を押して拡張開発ホストを起動
+```
+
+ワークスペースに `.gicket` ディレクトリが存在すると自動的にアクティベートされます。
 
 ## ロードマップ
 
-- [x] **Phase 1**: CLI コア（現在）
-- [ ] **Phase 2**: REST API + Web UI（`gicket serve`）
-- [ ] **Phase 3**: カンバンボード、リアルタイムフィルタ、ダッシュボード
-- [ ] **Phase 4**: VS Code 拡張
+- [x] **Phase 1**: CLI コア
+- [x] **Phase 2**: REST API + Web UI（`gicket serve`）
+- [x] **Phase 3**: Git 連携（フック、マージコンフリクト解決）
+- [x] **Phase 4**: VS Code 拡張
 
 ## 類似プロジェクト
 
@@ -139,7 +229,7 @@ your-project/
 | [SIT](https://github.com/sit-fyi/sit) | Rust | サーバレス情報トラッカー |
 | [Bugs Everywhere](http://www.bugseverywhere.org/) | Python | 複数VCS対応 |
 
-**gicket** は、人間が読める YAML ファイルとリッチな Web UI（今後実装予定）を組み合わせ、シングルバイナリで提供することで差別化を図ります。
+**gicket** は、人間が読める YAML ファイルと内蔵 Web UI を組み合わせ、シングルバイナリで提供することで差別化を図ります。
 
 ## ライセンス
 
