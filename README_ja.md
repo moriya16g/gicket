@@ -23,11 +23,17 @@ gicket は、Git リポジトリ内に人間が読める YAML テキストファ
 
 ### インストール
 
+**バイナリをダウンロード**（Go 環境不要）:
+
+[GitHub Releases](https://github.com/gicket/gicket/releases) からお使いのプラットフォーム用の最新版をダウンロードし、PATH の通った場所に配置してください。
+
+**Go でインストール**:
+
 ```bash
 go install github.com/gicket/gicket@latest
 ```
 
-ソースからビルドする場合:
+**ソースからビルドする場合**:
 
 ```bash
 git clone https://github.com/gicket/gicket.git

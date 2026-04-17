@@ -15,6 +15,11 @@ func Execute() error {
 	return rootCmd.Execute()
 }
 
+// SetVersion はバージョン情報を設定する
+func SetVersion(v string) {
+	rootCmd.Version = v
+}
+
 func init() {
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(newCmd)

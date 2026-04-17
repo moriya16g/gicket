@@ -23,11 +23,17 @@ gicket manages tickets as human-readable YAML text files inside a Git repository
 
 ### Install
 
+**Download binary** (no Go required):
+
+Download the latest release for your platform from [GitHub Releases](https://github.com/gicket/gicket/releases), then place it in your PATH.
+
+**Or install with Go**:
+
 ```bash
 go install github.com/gicket/gicket@latest
 ```
 
-Or build from source:
+**Or build from source**:
 
 ```bash
 git clone https://github.com/gicket/gicket.git
